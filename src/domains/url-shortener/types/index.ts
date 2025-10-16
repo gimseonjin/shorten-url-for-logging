@@ -1,4 +1,7 @@
+import { ID } from "@/core/types/id.types";
+
 export interface ShortenUrl {
+  id: ID<string>;
   originalUrl: string;
   shortenUrlKey: string;
   redirectCount: number;

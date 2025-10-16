@@ -1,28 +1,40 @@
 import { ShortenUrl } from '../types';
 import { NotFoundShortenUrlError } from '@/core/errors/errors';
-
-const shortenUrls: Map<string, ShortenUrl> = new Map();
+import { Database } from '@/core/infrastructure/database/database';
+const db = new Database<ShortenUrl, string>();
 
 export const saveShortenUrl = (shortenUrl: ShortenUrl): void => {
-  shortenUrls.set(shortenUrl.shortenUrlKey, shortenUrl);
+  db.save(shortenUrl);
 };
 
 export const findShortenUrlByKey = (shortenUrlKey: string): ShortenUrl => {
-  const shortenUrl = shortenUrls.get(shortenUrlKey);
+  const shortenUrl = db.findOne({ shortenUrlKey });
   if (!shortenUrl) {
     throw new NotFoundShortenUrlError(`Shorten URL with key ${shortenUrlKey} not found`);
   }
   return shortenUrl;
 };
 
+export const findByOriginalUrl = (originalUrl: string): ShortenUrl | null => {
+  return db.findOne({ originalUrl });
+};
+
+export const findByRedirectCount = (redirectCount: number): ShortenUrl[] => {
+  return db.findMany({ redirectCount });
+};
+
+export const findByMultipleCriteria = (criteria: Partial<ShortenUrl>): ShortenUrl[] => {
+  return db.findMany(criteria);
+};
+
 export const findAllShortenUrls = (): ShortenUrl[] => {
-  return Array.from(shortenUrls.values());
+  return db.findAll();
 };
 
 export const updateRedirectCount = (shortenUrlKey: string): void => {
-  const shortenUrl = shortenUrls.get(shortenUrlKey);
+  const shortenUrl = db.findOne({ shortenUrlKey });
   if (shortenUrl) {
-    shortenUrl.redirectCount += 1;
-    shortenUrls.set(shortenUrlKey, shortenUrl);
+    const updated = { ...shortenUrl, redirectCount: shortenUrl.redirectCount + 1 };
+    db.save(updated);
   }
 };

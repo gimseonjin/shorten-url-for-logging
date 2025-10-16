@@ -1,6 +1,6 @@
 import { InvalidUrlError } from '@/core/errors/errors';
 import { ShortenUrl } from '../types';
-import crypto from 'crypto';
+import crypto, { randomUUID } from 'crypto';
 
 export const generateShortKey = (length: number = 6): string => {
   return crypto.randomBytes(length).toString('base64url').substring(0, length);
@@ -21,6 +21,7 @@ export const createShortenUrl = (originalUrl: string): ShortenUrl => {
   }
 
   return {
+    id: randomUUID(),
     originalUrl,
     shortenUrlKey: generateShortKey(),
     redirectCount: 0
