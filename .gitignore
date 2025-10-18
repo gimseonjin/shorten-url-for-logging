@@ -19,6 +19,7 @@ build/
 logs/
 error.log
 combined.log
+*-audit.json
 
 # Runtime data
 pids

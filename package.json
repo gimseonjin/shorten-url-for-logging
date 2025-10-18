@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "nodemon --exec ts-node -r tsconfig-paths/register src/server.ts",
     "build": "tsc && tsc-alias",
-    "start": "node dist/server.js",
+    "start": "node -r dotenv/config dist/server.js dotenv_config_path=.env",
+    "start:dev": "node -r dotenv/config dist/server.js dotenv_config_path=.env.development",
+    "start:prod": "node -r dotenv/config dist/server.js dotenv_config_path=.env.production",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,7 +20,8 @@
     "express": "^5.1.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "winston": "^3.18.3"
+    "winston": "^3.18.3",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.3",

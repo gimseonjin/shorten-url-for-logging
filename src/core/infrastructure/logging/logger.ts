@@ -1,4 +1,5 @@
 import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
 import MDC from './mdc';
 
 // Custom format to include MDC context
@@ -6,6 +7,13 @@ const mdcFormat = winston.format((info) => {
   const mdcContext = MDC.getContext();
   return { ...info, ...mdcContext };
 });
+
+// Load configuration from environment variables
+const LOG_DIR = process.env.LOG_DIR || 'logs';
+const LOG_MAX_SIZE = process.env.LOG_MAX_SIZE || '20m';
+const LOG_ERROR_MAX_FILES = process.env.LOG_ERROR_MAX_FILES || '14d';
+const LOG_DEBUG_MAX_FILES = process.env.LOG_DEBUG_MAX_FILES || '3d';
+const LOG_COMBINED_MAX_FILES = process.env.LOG_COMBINED_MAX_FILES || '14d';
 
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -16,8 +24,30 @@ const logger = winston.createLogger({
     winston.format.json()
   ),
   transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
+    // Error logs - configurable retention
+    new DailyRotateFile({
+      filename: `${LOG_DIR}/error-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD',
+      level: 'error',
+      maxSize: LOG_MAX_SIZE,
+      maxFiles: LOG_ERROR_MAX_FILES,
+    }),
+    // Debug logs - configurable retention (for detailed debugging)
+    new DailyRotateFile({
+      filename: `${LOG_DIR}/debug-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD',
+      level: 'debug',
+      maxSize: LOG_MAX_SIZE,
+      maxFiles: LOG_DEBUG_MAX_FILES,
+    }),
+    // Info and above logs - configurable retention
+    new DailyRotateFile({
+      filename: `${LOG_DIR}/combined-%DATE%.log`,
+      datePattern: 'YYYY-MM-DD',
+      level: 'info',
+      maxSize: LOG_MAX_SIZE,
+      maxFiles: LOG_COMBINED_MAX_FILES,
+    }),
   ],
 });
 

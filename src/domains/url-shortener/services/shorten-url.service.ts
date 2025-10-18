@@ -22,7 +22,7 @@ export const createShortenUrl = (originalUrl: string): ShortenUrl => {
     throw new InvalidUrlError(`Invalid URL: ${originalUrl}`);
   }
 
-  const MAX_RETRY_COUNT = 3;
+  const MAX_RETRY_COUNT = 5;
   for (let i = 0; i < MAX_RETRY_COUNT; i++) {
     const shortenUrlKey = generateShortKey();
     const shortenUrl = findShortenUrlByKey(shortenUrlKey);
@@ -34,6 +34,8 @@ export const createShortenUrl = (originalUrl: string): ShortenUrl => {
         redirectCount: 0
       };
     }
+
+    logger.warn('Failed to generate unique shorten URL key after ${i} attempts')
   }
 
   logger.error('Failed to generate unique shorten URL key after 3 attempts', {
