@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { NotFoundShortenUrlError, InvalidUrlError } from '@/core/errors/errors';
+import logger from '@/core/infrastructure/logging/logger';
 
 export const errorHandler = (
   error: Error,
@@ -20,6 +21,12 @@ export const errorHandler = (
       message: error.message
     });
   }
+
+  // Log only unexpected errors (500 errors)
+  logger.error('Unexpected error occurred', {
+    error: error.message,
+    stack: error.stack,
+  });
 
   res.status(500).json({
     error: 'Internal Server Error',
