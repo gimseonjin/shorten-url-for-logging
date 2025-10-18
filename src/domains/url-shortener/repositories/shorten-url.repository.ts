@@ -1,5 +1,4 @@
 import { ShortenUrl } from '../types';
-import { NotFoundShortenUrlError } from '@/core/errors/errors';
 import { Database } from '@/core/infrastructure/database/database';
 const db = new Database<ShortenUrl, string>();
 
@@ -7,11 +6,8 @@ export const saveShortenUrl = (shortenUrl: ShortenUrl): void => {
   db.save(shortenUrl);
 };
 
-export const findShortenUrlByKey = (shortenUrlKey: string): ShortenUrl => {
+export const findShortenUrlByKey = (shortenUrlKey: string): ShortenUrl | null => {
   const shortenUrl = db.findOne({ shortenUrlKey });
-  if (!shortenUrl) {
-    throw new NotFoundShortenUrlError(`Shorten URL with key ${shortenUrlKey} not found`);
-  }
   return shortenUrl;
 };
 

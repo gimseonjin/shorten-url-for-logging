@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { createShortenUrl, prepareShortenUrlResponse } from '../services/shorten-url.service';
 import { saveShortenUrl, findShortenUrlByKey, findAllShortenUrls, updateRedirectCount } from '../repositories/shorten-url.repository';
+import logger from '@/core/infrastructure/logging/logger';
+import { NotFoundShortenUrlError } from '@/core/errors/errors';
 
 export const createShortenUrlHandler = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -14,6 +16,7 @@ export const createShortenUrlHandler = async (req: Request, res: Response, next:
     saveShortenUrl(shortenUrl);
 
     const baseUrl = `${req.protocol}://${req.get('host')}`;
+    logger.info('Shorten URL created', shortenUrl);
     const response = prepareShortenUrlResponse(shortenUrl, baseUrl);
 
     res.status(201).json(response);
@@ -26,7 +29,11 @@ export const redirectHandler = async (req: Request, res: Response, next: NextFun
   try {
     const { key } = req.params;
     const shortenUrl = findShortenUrlByKey(key);
-    
+
+    if (shortenUrl === null) {
+      throw new NotFoundShortenUrlError(`Shorten URL with key ${key} not found`);
+    }
+
     updateRedirectCount(key);
 
     res.redirect(shortenUrl.originalUrl);
@@ -39,6 +46,10 @@ export const getShortenUrlHandler = async (req: Request, res: Response, next: Ne
   try {
     const { key } = req.params;
     const shortenUrl = findShortenUrlByKey(key);
+
+    if (shortenUrl === null) {
+      throw new NotFoundShortenUrlError(`Shorten URL with key ${key} not found`);
+    }
     
     const baseUrl = `${req.protocol}://${req.get('host')}`;
     const response = prepareShortenUrlResponse(shortenUrl, baseUrl);

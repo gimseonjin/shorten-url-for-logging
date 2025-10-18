@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { NotFoundShortenUrlError, InvalidUrlError } from '@/core/errors/errors';
+import { NotFoundShortenUrlError, InvalidUrlError, LackOfUniqueShortenUrlKeyError } from '@/core/errors/errors';
 import logger from '@/core/infrastructure/logging/logger';
 
 export const errorHandler = (
@@ -18,6 +18,13 @@ export const errorHandler = (
   if (error instanceof InvalidUrlError) {
     return res.status(400).json({
       error: 'Bad Request',
+      message: error.message
+    });
+  }
+
+  if (error instanceof LackOfUniqueShortenUrlKeyError) {
+    return res.status(500).json({
+      error: 'Internal Server Error',
       message: error.message
     });
   }

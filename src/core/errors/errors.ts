@@ -11,3 +11,10 @@ export class InvalidUrlError extends Error {
     this.name = 'InvalidUrlError';
   }
 }
+
+export class LackOfUniqueShortenUrlKeyError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'LackOfUniqueShortenUrlKeyError';
+  }
+}
