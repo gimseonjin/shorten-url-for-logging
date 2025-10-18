@@ -18,10 +18,11 @@ export const loggingMiddleware = (req: Request, res: Response, next: NextFunctio
 
   // Run the rest of the request handling within MDC context
   MDC.run(context, () => {
-    // Log incoming request
-    logger.info('Incoming request', {
-      method: req.method,
-      url: req.url,
+    // Log incoming request (info level - basic info only)
+    logger.info('Incoming request');
+
+    // Log detailed request info (debug level - includes query and body)
+    logger.debug('Request details', {
       query: req.query,
       body: req.method !== 'GET' ? req.body : undefined,
     });
